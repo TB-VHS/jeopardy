@@ -1,0 +1,10 @@
+<h1>User {{ userName }}</h1>
+
+<div class="map-section">
+    {{#each mapTiles }}
+<div class="map-tile {{ this.terrain }}">
+    {{ this.x }}|{{ this.y }}: {{ this.terrain }}
+    <img src="/assets/{{ this.img }}" />
+</div>
+    {{/each}}
+</div>

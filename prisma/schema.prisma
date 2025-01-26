@@ -1,0 +1,69 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PLAYER
+  ADMIN
+}
+
+enum ItemType {
+  RING
+  WAND
+  WEAPON_C
+  WEAPON_F
+  BOX
+}
+
+model Actor {
+  id            Int         @id @default(autoincrement())
+  token         String
+  actorname     String
+  HP            Int         @default( 100 )
+  XP            Int         @default( 0 )
+  MP            Int         @default( 1 )
+  nextAction    String?
+}
+
+model Item {
+  id            Int         @id @default(autoincrement())
+  type          ItemType
+  usage         String      @default("")
+}
+
+model MapTile {
+  coordX        Int
+  coordY        Int
+  terrain       String
+  content       String      @default("")
+
+  @@id(name: "coords", [coordX, coordY])
+}
+
+
+model User {
+  id            Int         @id @default(autoincrement())
+  email         String      @unique
+  username      String      @unique
+  role          Role        @default( PLAYER )
+  pwHash        String
+  createdAt     DateTime    @default(now())
+  actorId       Int
+  actorToken    String?
+  mapSectionX   Int?
+  mapSectionY   Int?
+}
+
+model GameLogic {
+  id            Int         @id @default(autoincrement())
+  turn          Int         @default( 1 )
+  locked        Boolean     @default( true )
+}

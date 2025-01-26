@@ -1,0 +1,28 @@
+
+.map-tile {
+    display:    inline-block;
+    width:      64px;
+    height:     64px;
+}
+.map-tile.grass {
+    background-color: lightgreen;
+}
+.map-tile.boreal {
+    background-color: green;
+}
+.map-tile.coniferous {
+    background-color: darkgreen;
+}
+.map-tile.water {
+    background-color: lightblue;
+}
+.map-tile.rock {
+    background-color: slategrey;
+}
+    
+
+.map-section {
+    width:      640px;
+    height:     640px;
+
+}
