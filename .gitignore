@@ -128,3 +128,12 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# --- my 2 cents --- #
+
+# protect empty directories from deletion with .gitkeep
+!.gitkeep
+
+# editor config files
+*.sublime-*
+*.code-*
