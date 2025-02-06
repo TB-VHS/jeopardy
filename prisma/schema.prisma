@@ -27,6 +27,7 @@ model Actor {
   id            Int         @id @default(autoincrement())
   token         String
   actorname     String
+  spriteFile    String      @default( "actor01.png" )
   HP            Int         @default( 100 )
   XP            Int         @default( 0 )
   MP            Int         @default( 1 )
