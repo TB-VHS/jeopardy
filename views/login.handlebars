@@ -1,14 +1,26 @@
-<h1>Login</h1>
-<form action="/login" method="POST">
-  <div>
-    <input type="text" name="email" />
-  </div>
-  <div>
-    <input type="password" name="password" />
-  </div>
-  <hr>
-  <div>
-    <input type="submit" value="Login" />
-  </div>
+<div class="w100 h100 grix container">
 
-</form>
+  <form action="/login" method="POST" class="card shadow-1 rounded-3 white w">
+    <div class="card-header bg-blue">
+      Login
+    </div>
+    <div class="divider"></div>
+
+    <div class="card-content">
+        <div class="form-field form-inline">
+          <label for="email">E-Mail</label>
+          <input type="text" name="email" id="email" class="form-control rounded-1" placeholder="otto@normalo.de" />
+        </div>
+        <div class="form-field form-inline">
+          <label for="password">Passwort</label>
+          <input type="password" name="password" id="password" class="form-control rounded-1" />
+        </div>
+        <div class="divider"></div>
+
+        <div class="card-footer">
+          <button type="submit" class="btn shadow-1 rounded-1 primary">Login</button>
+        </div>
+    </div>
+  </form>
+
+</div>

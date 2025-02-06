@@ -62,8 +62,8 @@ app.get( '/jeopardy'
     const userId = parseInt( req.cookies.userId );
     const user = await prisma.user.findUnique({ where: { id: userId }});
     const actor = await prisma.actor.findUnique({ where: { id: user?.actorId }});
-    const lox = user?.mapSectionX ? user?.mapSectionX : 0; 
-    const loy = user?.mapSectionY ? user?.mapSectionY : 0; 
+    const lox = user?.mapSectionX ? user?.mapSectionX : 0;
+    const loy = user?.mapSectionY ? user?.mapSectionY : 0;
     let map = await prisma.mapTile.findMany({
       where: {
         coordX: { gt: lox, lte: lox + 10 }
@@ -71,24 +71,24 @@ app.get( '/jeopardy'
     }});
     console.log( `Map Section:`)
     console.log( `${ map.map( m => util.inspect( m ))}`)
-    const mapTiles = map.map( m =>{ 
+    const mapTiles = map.map( m =>{
       let terrain: string;
       let content: any;
       let img = '';
       switch( m.terrain ){
-        case 'G': 
+        case 'G':
           terrain = 'grass';
           break;
-        case 'B': 
+        case 'B':
           terrain = 'boreal';
           break;
-        case 'C': 
+        case 'C':
           terrain = 'coniferous';
           break;
-        case 'W': 
+        case 'W':
           terrain = 'water';
           break;
-        case 'R': 
+        case 'R':
           terrain = 'rock';
           break;
         default:
@@ -97,10 +97,10 @@ app.get( '/jeopardy'
       if( m.content !== '' ){
           content = JSON.parse( m.content );
           if( content.subject === 'actor' && content.id === 1 ){
-            img = 'actor01.png' 
+            img = 'sprites/actor01.png'
           }
       }
-      return { x: m.coordX, y: m.coordY, terrain: terrain, img: img  } 
+      return { x: m.coordX, y: m.coordY, terrain: terrain, img: img  }
     })
     res.render( 'jeopardy', { title: 'Jeopardy - Game', userName: username, mapTiles: mapTiles });
 });
