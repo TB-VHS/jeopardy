@@ -1,24 +1,24 @@
-<div class="w100 h100 grix container">
+<div class="card self-center mt-5 shadow-5 white rounded-3" id="card-login">
 
-  <form action="/login" method="POST" class="card shadow-1 rounded-3 white w">
-    <div class="card-header bg-blue">
+  <form action="/login" method="POST">
+    <div class="card-header font-s4 font-w900 blue">
       Login
     </div>
     <div class="divider"></div>
 
     <div class="card-content">
-        <div class="form-field form-inline">
+        <div class="form-field">
           <label for="email">E-Mail</label>
-          <input type="text" name="email" id="email" class="form-control rounded-1" placeholder="otto@normalo.de" />
+          <input type="text" name="email" id="email" class="form-control font-s4 rounded-1" placeholder="otto@normalo.de" />
         </div>
-        <div class="form-field form-inline">
+        <div class="form-field">
           <label for="password">Passwort</label>
-          <input type="password" name="password" id="password" class="form-control rounded-1" />
+          <input type="password" name="password" id="password" class="form-control font-s4 rounded-1" />
         </div>
         <div class="divider"></div>
 
         <div class="card-footer">
-          <button type="submit" class="btn shadow-1 rounded-1 primary">Login</button>
+          <button type="submit" class="btn w100 font-s4 font-w900 shadow-1 rounded-1 green dark-2">Login</button>
         </div>
     </div>
   </form>

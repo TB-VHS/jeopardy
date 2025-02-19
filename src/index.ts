@@ -11,7 +11,6 @@ import { PrismaClient } from '@prisma/client';
 
 const port = process.env.PORT || 3000;
 
-const prisma = new PrismaClient();
 const app: Express = express();
 app.engine( 'handlebars', engine() );
 app.set( 'view engine', 'handlebars' );
@@ -20,6 +19,17 @@ app.use( express.static( 'public' ));
 app.use( bodyParser.json() );
 app.use( bodyParser.urlencoded({ extended: true }));
 app.use( cookieParser() );
+
+const prisma = new PrismaClient();
+
+let terrainMapping = new Map<string, string>([
+  [ 'B', 'boreal' ]
+, [ 'C', 'conifer' ]
+, [ 'G', 'grass' ]
+, [ 'R', 'rock' ]
+, [ 'W', 'water' ]
+])
+
 
 
 /* --- routes --- */
@@ -64,45 +74,45 @@ app.get( '/jeopardy'
     const actor = await prisma.actor.findUnique({ where: { id: user?.actorId }});
     const lox = user?.mapSectionX ? user?.mapSectionX : 0;
     const loy = user?.mapSectionY ? user?.mapSectionY : 0;
-    let map = await prisma.mapTile.findMany({
+    let mapTiles = await prisma.mapTile.findMany({
       where: {
-        coordX: { gt: lox, lte: lox + 10 }
-      , coordY: { gt: loy, lte: loy + 10 }
+        coordX: { gt: lox, lte: lox + 11 }
+      , coordY: { gt: loy, lte: loy + 11 }
     }});
     console.log( `Map Section:`)
-    console.log( `${ map.map( m => util.inspect( m ))}`)
-    const mapTiles = map.map( m =>{
-      let terrain: string;
-      let content: any;
-      let img = '';
-      switch( m.terrain ){
-        case 'G':
-          terrain = 'grass';
-          break;
-        case 'B':
-          terrain = 'boreal';
-          break;
-        case 'C':
-          terrain = 'coniferous';
-          break;
-        case 'W':
-          terrain = 'water';
-          break;
-        case 'R':
-          terrain = 'rock';
-          break;
-        default:
-          terrain = ''
-      }
-      if( m.content !== '' ){
-          content = JSON.parse( m.content );
-          if( content.subject === 'actor' && content.id === 1 ){
-            img = 'sprites/actor01.png'
-          }
-      }
-      return { x: m.coordX, y: m.coordY, terrain: terrain, img: img  }
+    // console.log( `${ mapTiles.map( m => util.inspect( m ))}` )
+    const bgSprites = mapTiles.map( m =>{
+      return {
+                terrain: m.terrain
+              , x:  ( m.coordX - lox - 1 ) * 64
+              , y:  ( m.coordY - loy - 1 ) * 64
+              }
     })
-    res.render( 'jeopardy', { title: 'Jeopardy - Game', userName: username, mapTiles: mapTiles });
+    const mgSprites = mapTiles.map( m =>{
+      return {
+                terrainSprite:  terrainMapping.get( m.terrain ) + '01'
+              , x:  ( m.coordX - lox - 1 ) * 64
+              , y:  ( m.coordY - loy - 1 ) * 64
+              }
+    })
+    const fgSpritesPromises = mapTiles.map( async m => {
+      let spriteFile: string|undefined = '0-bg.png';
+      if( m.content !== '' ){
+        let content = JSON.parse( m.content );
+        if( content.subject === 'actor' ){
+          const a = await prisma.actor.findUnique({ where: { id: content.id }});
+          console.log( `a: ${ util.inspect( a )}` )
+          spriteFile = a?.spriteFile;
+        }
+      }
+      return {
+        spriteFile: spriteFile
+      , x:  ( m.coordX - lox - 1 ) * 64
+      , y:  ( m.coordY - loy - 1 ) * 64
+      }
+    })
+    const fgSprites = await Promise.all( fgSpritesPromises )
+    res.render( 'jeopardy', { title: 'Jeopardy - Game', userName: username, bgSprites: bgSprites, mgSprites: mgSprites, fgSprites: fgSprites });
 });
 
 

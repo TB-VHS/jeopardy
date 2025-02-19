@@ -1,10 +1,31 @@
-<h1>User {{ userName }}</h1>
+<div class="w100 h100 grix container">
 
-<div class="map-section">
-    {{#each mapTiles }}
-<div class="map-tile {{ this.terrain }}">
-    {{ this.x }}|{{ this.y }}: {{ this.terrain }}
-    <img src="/assets/{{ this.img }}" />
+  <h1 class="heading text-center">Jeopardy - {{ userName }}</h1>
+
+  <div class="grix">
+    <div class="map-section self-center">
+      <div id="layer-bg" class="layer">
+        {{#each bgSprites }}
+          <img src="/assets/sprites/{{ this.terrain }}-bg.png" class="map-tile" style="transform: translate({{ this.x }}px, {{ this.y }}px);" />
+        {{/each }}
+      </div>
+      <div id="layer-mg" class="layer">
+        {{#each mgSprites }}
+          <img src="/assets/sprites/{{ this.terrainSprite }}.png" class="map-tile" style="transform: translate({{ this.x }}px, {{ this.y }}px);" />
+        {{/each }}
+      </div>
+      <div id="layer-fg" class="layer">
+        {{#each fgSprites }}
+          <img src="/assets/sprites/{{ this.spriteFile }}" class="map-tile" style="transform: translate({{ this.x }}px, {{ this.y }}px);" />
+        {{/each }}
+      </div>
+      <div id="layer-mg" class="layer"></div>
+      <div id="layer-fg" class="layer"></div>
+    </div>
+  </div>
+
 </div>
-    {{/each}}
-</div>
+
+<script>
+
+</script>

@@ -1,28 +1,43 @@
 
-.map-tile {
-    display:    inline-block;
-    width:      64px;
-    height:     64px;
+@font-face {
+  font-family: Macondo;
+  src: url('../fonts/MacondoSwashCaps-Regular.ttf');
 }
-.map-tile.grass {
-    background-color: lightgreen;
+
+
+.heading {
+  font-family: Macondo;
 }
-.map-tile.boreal {
-    background-color: green;
+
+#card-login {
+  width:      60%
 }
-.map-tile.coniferous {
-    background-color: darkgreen;
-}
-.map-tile.water {
-    background-color: lightblue;
-}
-.map-tile.rock {
-    background-color: slategrey;
-}
-    
 
 .map-section {
-    width:      640px;
-    height:     640px;
-
+  /* box-sizing: border-box; */
+  width:      704px;
+  height:     704px;
+  background-color: aliceblue;
 }
+.map-section.layer {
+  position: relative;
+  left:     0;
+  top:      0;
+  width:    100%;
+  height:   100%;
+}
+
+.map-section.layer#layer-bg{
+  z-index:  0;
+}
+.map-section.layer#layer-mg{
+  z-index:  100;
+}
+.map-section.layer#layer-fg{
+  z-index:  200;
+}
+
+.map-section img {
+  position: absolute;
+}
+

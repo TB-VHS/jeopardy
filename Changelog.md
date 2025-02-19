@@ -1,0 +1,1 @@
+- Die Darstellung verwendet nur noch Images im .png-Format, die auf verschiedenen Layern gezeigt werden. (s. jeopardy.css und jeopardy.handlebars )
