@@ -16,7 +16,7 @@
       </div>
       <div id="layer-fg" class="layer">
         {{#each fgSprites }}
-          <img src="/assets/sprites/{{ this.spriteFile }}" class="map-tile" style="transform: translate({{ this.x }}px, {{ this.y }}px);" />
+          <img src="/assets/sprites/{{ this.spriteFile }}" class="map-tile" title="{{ this.actorname }}" style="transform: translate({{ this.x }}px, {{ this.y }}px);" />
         {{/each }}
       </div>
       <div id="layer-mg" class="layer"></div>

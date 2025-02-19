@@ -96,17 +96,21 @@ app.get( '/jeopardy'
               }
     })
     const fgSpritesPromises = mapTiles.map( async m => {
-      let spriteFile: string|undefined = '0-bg.png';
+      let spriteFile: string|undefined = '0.png'
+      ,   actorname: string|undefined = ''
+      ;
       if( m.content !== '' ){
         let content = JSON.parse( m.content );
         if( content.subject === 'actor' ){
           const a = await prisma.actor.findUnique({ where: { id: content.id }});
           console.log( `a: ${ util.inspect( a )}` )
           spriteFile = a?.spriteFile;
+          actorname = a?.actorname;
         }
       }
       return {
         spriteFile: spriteFile
+      , actorname: actorname
       , x:  ( m.coordX - lox - 1 ) * 64
       , y:  ( m.coordY - loy - 1 ) * 64
       }
