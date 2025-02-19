@@ -101,8 +101,8 @@ class Jeopardy {
     if( createMap ){
       await createPrismaMapFromFile( path.join("src", "lib", "jeopardy", "data", "map.txt"))
     }
-    for( let i = 0; i < actorN; i++ )
-      await createActor( `Actor ${ Math.random().toString(16).substring(2, 7).toUpperCase() }`);
+    // for( let i = 0; i < actorN; i++ )
+    //   await createActor( `Actor ${ Math.random().toString(16).substring(2, 7).toUpperCase() }`);
   }
 
 
