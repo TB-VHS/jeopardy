@@ -66,6 +66,11 @@ app.post( '/login'
     }
 });
 
+app.post( '/api/move'
+, async( req: Request, res: Response )=>{
+    console.log( `COMMAND: ${ req.body.command }` )
+})
+
 app.get( '/jeopardy'
 , async( req: Request, res: Response )=>{
     const username = req.cookies.username;

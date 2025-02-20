@@ -6,26 +6,38 @@
     <div class="map-section self-center">
       <div id="layer-bg" class="layer">
         {{#each bgSprites }}
-          <img src="/assets/sprites/{{ this.terrain }}-bg.png" class="map-tile" style="transform: translate({{ this.x }}px, {{ this.y }}px);" />
+          <img src="/assets/sprites/{{ this.terrain }}-bg.png" style="transform: translate({{ this.x }}px, {{ this.y }}px);" />
         {{/each }}
       </div>
       <div id="layer-mg" class="layer">
         {{#each mgSprites }}
-          <img src="/assets/sprites/{{ this.terrainSprite }}.png" class="map-tile" style="transform: translate({{ this.x }}px, {{ this.y }}px);" />
+          <img src="/assets/sprites/{{ this.terrainSprite }}.png" style="transform: translate({{ this.x }}px, {{ this.y }}px);" />
         {{/each }}
       </div>
       <div id="layer-fg" class="layer">
         {{#each fgSprites }}
-          <img src="/assets/sprites/{{ this.spriteFile }}" class="map-tile" title="{{ this.actorname }}" style="transform: translate({{ this.x }}px, {{ this.y }}px);" />
+          <img src="/assets/sprites/{{ this.spriteFile }}" title="{{ this.actorname }}" style="transform: translate({{ this.x }}px, {{ this.y }}px);" />
         {{/each }}
       </div>
       <div id="layer-mg" class="layer"></div>
       <div id="layer-fg" class="layer"></div>
     </div>
   </div>
-
+  <div class="control-panel self-center">
+    <div class="layer">
+      <img src="/assets/sprites/direction_N.png" id="go-north" class="direction" title="Go North" style="transform: translate(64px, 0px);" />
+      <img src="/assets/sprites/direction_E.png" id="go-east"  class="direction" title="Go East" style="transform: translate(128px, 64px);" />
+      <img src="/assets/sprites/direction_S.png" id="go-south" class="direction" title="Go South" style="transform: translate(64px, 128px);" />
+      <img src="/assets/sprites/direction_W.png" id="go-west"  class="direction" title="Go West" style="transform: translate(0px, 64px);" />
+    </div>
+  </div>
 </div>
 
 <script>
+  $( ".direction" ).on( 'click'
+                      , function( ev ){
+                          var command = ev.target.id;
+                          $.post( '/api/move', { command: command })
+                        });
 
 </script>
