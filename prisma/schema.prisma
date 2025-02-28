@@ -59,8 +59,8 @@ model User {
   createdAt     DateTime    @default(now())
   actorId       Int
   actorToken    String?
-  mapSectionX   Int?
-  mapSectionY   Int?
+  mapSectionX   Int
+  mapSectionY   Int
 }
 
 model GameLogic {

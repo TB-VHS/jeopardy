@@ -4,7 +4,7 @@ import path from 'path';
 import util from 'util';
 import { EOL } from 'node:os'
 import { v4 as uuidv4 } from 'uuid';
-import { PrismaClient } from '@prisma/client';
+import { Actor, MapTile, PrismaClient } from '@prisma/client';
 import { NONAME } from 'node:dns';
 
 const prisma = new PrismaClient();
@@ -54,13 +54,19 @@ interface MapContent {
 
 }
 
+const directionVectors: number[][] = [
+  [  0, -1 ]
+, [  1,  0 ]
+, [  0,  1 ]
+, [ -1,  0 ]
+]
 
 /* --- classes --- */
 
 class Jeopardy {
   turnCounter = 0;
   constructor(){
-    this.initGame( false, 10, 0 );
+    this.initGame( false, 1, 0 );
     this.runGame()
   }
 
@@ -68,28 +74,27 @@ class Jeopardy {
     setInterval(
       async()=>{
         this.turnCounter++
-        console.log( `Turn ${ this.turnCounter } - iterate over actors table` )
+        console.log( `Turn ${ this.turnCounter }` );
 
+        console.log( ` --- iterate over actors table --- ` );
         const actors = await prisma.actor.findMany();
-        console.log( `${ actors.length } actors found:`)
-        console.log( `${ actors.map( a => util.inspect( a )) }`)
+        console.log( `${ actors.length } actors found:` );
+        console.log( `${ actors.map( a => util.inspect( a )) }` );
         let nextAction: ActorAction|null;
+
         actors.forEach( async( actor )=>{
           if( actor.nextAction !== null ){
             nextAction = JSON.parse( actor.nextAction );
             console.log( `Actor ${ actor.id } nextAction: ${ util.inspect( nextAction ) }` );
-          }
-          else {
-            nextAction = {
-              actionType: ACTION_TYPE.NONE
-            , direction: DIRECTION.NORTH
-            , target: null
+            if( nextAction?.actionType === ACTION_TYPE.MOVE ){
+              if( nextAction.direction !== null ){
+                const dX = directionVectors[ nextAction.direction ][0] ?? 0;
+                const dY = directionVectors[ nextAction.direction ][1] ?? 0;
+                moveActorToMapTile( actor, dX, dY );
+              }
             }
-          }
-          // actions aus nextAction abarbeiten
-          // if()
-          // else if()
 
+          }
         })
         // uU per turn Dinge erledigen
       }
@@ -102,7 +107,7 @@ class Jeopardy {
       await createPrismaMapFromFile( path.join("src", "lib", "jeopardy", "data", "map.txt"))
     }
     // for( let i = 0; i < actorN; i++ )
-    //   await createActor( `Actor ${ Math.random().toString(16).substring(2, 7).toUpperCase() }`);
+    //   await createActor( `Actor ${ Math.random().toString(16).substring(2, 7).toUpperCase() }` );
   }
 
 
@@ -129,6 +134,49 @@ async function createActor( actorname: string ){
   console.log( `New Actor  ${ ret.id } @ ${ x }|${ y }` )
 }
 
+async function moveActorToMapTile( actor: Actor, dX: number, dY: number ): Promise<void> {
+  const mtFrom: MapTile|null  = await findMapTileWithActor( actor.id );
+  let mtTo: MapTile|null      = null;
+
+  if( mtFrom !== null ){
+    let contentTo = mtFrom.content;
+
+// remove actor from former position
+    await prisma.mapTile.update({
+      where:  { coords: {
+                          coordX:   mtFrom.coordX
+                        , coordY:   mtFrom.coordY
+                        }
+              }
+    , data:   { content: "" }
+    })
+// add actor at new position
+    await prisma.mapTile.update({
+      where:  { coords: {
+                          coordX:   mtFrom.coordX + dX
+                        , coordY:   mtFrom.coordY + dY
+                        }
+              }
+    , data:   { content: contentTo }
+    })
+// adjust map section, if actor is owned by player/user
+    const owner = await prisma.user.findFirst({ where: { actorToken: actor.token }});
+    if( owner !== null ){
+      const newSectionX = owner.mapSectionX + dX;
+      const newSectionY = owner.mapSectionY + dY;
+      await prisma.user.update({
+        where:  { id: owner.id }
+      , data:   {
+                  mapSectionX: newSectionX
+                , mapSectionY: newSectionY
+                }
+      });
+    }
+  }
+  else {
+    console.error( `Actor ${ util.inspect( actor ) } not fount in MapTiles` )
+  }
+}
 
 async function writeContentToMapTile( x: number, y: number, contentData: MapContent ): Promise<void> {
   await prisma.mapTile.update({
@@ -136,12 +184,20 @@ async function writeContentToMapTile( x: number, y: number, contentData: MapCont
       coords: {
         coordX: x
       , coordY: y
-      }
-    }
-  , data: {
-      content: JSON.stringify( contentData )
+    } }
+    , data: {
+        content: JSON.stringify( contentData )
     }
   })
+}
+
+
+async function findMapTileWithActor( actorId: number ): Promise<{ coordX: number; coordY: number; terrain: string; content: string; } | null> {
+  console.log( ` --- find mapTile with actor --- ` );
+  const contentStr = JSON.stringify( { subject: 'actor', id: actorId } );
+  const m = await prisma.mapTile.findFirst({ where: { content: { contains: contentStr }}});
+
+  return m;
 }
 
 

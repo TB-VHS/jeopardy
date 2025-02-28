@@ -40,6 +40,9 @@
   height:     192px;
   background-color: slategrey;
 }
+.control-panel .direction {
+  cursor:     move;
+}
 
 .sprite {
   position: absolute;

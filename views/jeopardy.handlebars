@@ -25,19 +25,35 @@
   </div>
   <div class="control-panel self-center">
     <div class="layer">
-      <img class="sprite" src="/assets/sprites/direction_N.png" id="go-north" class="direction" title="Go North" style="transform: translate(64px, 0px);" />
-      <img class="sprite" src="/assets/sprites/direction_E.png" id="go-east"  class="direction" title="Go East" style="transform: translate(128px, 64px);" />
-      <img class="sprite" src="/assets/sprites/direction_S.png" id="go-south" class="direction" title="Go South" style="transform: translate(64px, 128px);" />
-      <img class="sprite" src="/assets/sprites/direction_W.png" id="go-west"  class="direction" title="Go West" style="transform: translate(0px, 64px);" />
+      <img class="sprite direction" id="go-north" src="/assets/sprites/direction_N.png" title="Go North" style="transform: translate(64px, 0px);" />
+      <img class="sprite direction" id="go-east"  src="/assets/sprites/direction_E.png" title="Go East"  style="transform: translate(128px, 64px);" />
+      <img class="sprite direction" id="go-south" src="/assets/sprites/direction_S.png" title="Go South" style="transform: translate(64px, 128px);" />
+      <img class="sprite direction" id="go-west"  src="/assets/sprites/direction_W.png" title="Go West"  style="transform: translate(0px, 64px);" />
     </div>
   </div>
 </div>
 
 <script>
-  $( ".direction" ).on( 'click'
+  var userActor = {
+                    actorId:  {{ userActor.actorId }}
+                  , x:        {{ userActor.x }}
+                  , y:        {{ userActor.y }}
+                  };
+
+console.log( userActor );
+
+  $( '.direction' ).on( 'click'
                       , function( ev ){
+                          console.log( 'KLIKK', ev );
                           var command = ev.target.id;
-                          $.post( '/api/move', { command: command })
+                          $.post( '/api/set_next_action', { actor: userActor, nextAction: command });
                         });
+
+  var heartbeat = window.setInterval(
+    function(){
+      window.location.reload();
+    }
+  , 10_000
+  );
 
 </script>

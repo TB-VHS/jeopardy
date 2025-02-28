@@ -9,6 +9,10 @@ import cookieParser from 'cookie-parser';
 import { engine } from 'express-handlebars';
 import { PrismaClient } from '@prisma/client';
 
+import Jeopardy from './lib/jeopardy'
+
+const jeopardy = new Jeopardy()
+
 const port = process.env.PORT || 3000;
 
 const app: Express = express();
@@ -21,6 +25,41 @@ app.use( bodyParser.urlencoded({ extended: true }));
 app.use( cookieParser() );
 
 const prisma = new PrismaClient();
+
+
+interface ActorAction {
+  actionType:   ACTION_TYPE
+  direction:    DIRECTION|null
+  target:       MapContent|null
+}
+
+interface ActorCoords {
+  actorId: number
+  x: number
+  y: number
+}
+
+interface MapContent {
+  subject:    'actor'|'item'
+  id:         number
+
+}
+
+enum DIRECTION {
+  NORTH
+, EAST
+, SOUTH
+, WEST
+}
+
+enum ACTION_TYPE {
+  NONE
+, MOVE
+, PICK_UP
+, DROP
+, HIT
+
+}
 
 let terrainMapping = new Map<string, string>([
   [ 'B', 'boreal' ]
@@ -66,9 +105,23 @@ app.post( '/login'
     }
 });
 
-app.post( '/api/move'
+app.post( '/api/set_next_action'
 , async( req: Request, res: Response )=>{
-    console.log( `COMMAND: ${ req.body.command }` )
+    console.log( `nextAction: ${ req.body.nextAction }` )
+    console.log( `actor: ${ util.inspect( req.body.actor )}` )
+    const actionPhrase  = req.body.nextAction.split( '-' );
+    const actionType    = ACTION_TYPE.MOVE;
+
+    const nextAction:ActorAction = {
+      actionType: actionType
+    , direction:  DIRECTION[ actionPhrase[1].toUpperCase() as keyof typeof DIRECTION ]
+    , target:     null
+    };
+    await prisma.actor.update({
+      where:  { id: parseInt( req.body.actor.actorId )}
+    , data:   { nextAction: JSON.stringify( nextAction ) }
+    })
+
 })
 
 app.get( '/jeopardy'
@@ -76,15 +129,16 @@ app.get( '/jeopardy'
     const username = req.cookies.username;
     const userId = parseInt( req.cookies.userId );
     const user = await prisma.user.findUnique({ where: { id: userId }});
-    const actor = await prisma.actor.findUnique({ where: { id: user?.actorId }});
+    const actor = await prisma.actor.findUnique({ where: { id: user?.actorId }})
     const lox = user?.mapSectionX ? user?.mapSectionX : 0;
     const loy = user?.mapSectionY ? user?.mapSectionY : 0;
     let mapTiles = await prisma.mapTile.findMany({
       where: {
         coordX: { gt: lox, lte: lox + 11 }
       , coordY: { gt: loy, lte: loy + 11 }
-    }});
-    console.log( `Map Section:`)
+      }});
+      let userActor: ActorCoords|null = null;
+      console.log( `Map Section:`)
     // console.log( `${ mapTiles.map( m => util.inspect( m ))}` )
     const bgSprites = mapTiles.map( m =>{
       return {
@@ -111,6 +165,13 @@ app.get( '/jeopardy'
           console.log( `a: ${ util.inspect( a )}` )
           spriteFile = a?.spriteFile;
           actorname = a?.actorname;
+          if( a !== undefined &&  a?.token === user?.actorToken ){
+            userActor = {
+              actorId:  content.id
+            , x:        m.coordX
+            , y:        m.coordY
+            }
+          }
         }
       }
       return {
@@ -121,7 +182,7 @@ app.get( '/jeopardy'
       }
     })
     const fgSprites = await Promise.all( fgSpritesPromises )
-    res.render( 'jeopardy', { title: 'Jeopardy - Game', userName: username, bgSprites: bgSprites, mgSprites: mgSprites, fgSprites: fgSprites });
+    res.render( 'jeopardy', { title: 'Jeopardy - Game', userName: username, userActor: userActor, bgSprites: bgSprites, mgSprites: mgSprites, fgSprites: fgSprites });
 });
 
 
